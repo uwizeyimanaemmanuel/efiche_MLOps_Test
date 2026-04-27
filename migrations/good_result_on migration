@@ -1,0 +1,21 @@
+-- step one: Add nullable column 
+ALTER TABLE visit_invoices
+ADD COLUMN billing_status VARCHAR(20);
+
+--Backfill in batches
+
+UPDATE visit_invoices
+SET billing_status = 'pending'
+WHERE billing_status IS NULL
+LIMIT 10000;
+
+-- step two: Add not null constraint
+--Enforce constraint (AFTER backfill verified)
+ALTER TABLE visit_invoices
+ALTER COLUMN billing_status SET DEFAULT 'pending';
+
+ALTER TABLE visit_invoices
+ALTER COLUMN billing_status SET NOT NULL;
+
+
+
